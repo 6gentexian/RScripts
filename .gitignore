@@ -1,9 +1,19 @@
-# File that appears obsolete
-
-
-# Ignore all .tmp files
+# Ignore all non-system files
+*.test
+*.txt
+*.*~
+*.R
+*.r
+*.R*
+*.r*
+*.ppt
+tmp*
 *~
+*.csv
+*.xls*
 
 
-# Ignore everything in DEV/
-DEV/
+# Ignore everything in subfolders, except project folders
+R_LIBS/*
+!R_LIBS/FRED/*.R
+!R_LIBS/ALFRED/*.R
