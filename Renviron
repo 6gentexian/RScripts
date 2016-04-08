@@ -41,7 +41,7 @@ TAR=${TAR-'/bin/tar'}
 ## System and compiler types.
 R_SYSTEM_ABI='linux,gcc,gxx,gfortran,?'
 
-R_LIBS_USER=${R_LIBS_USER-'/home/edward/R_LIBS/3_1'}
+R_LIBS_USER=${R_LIBS_USER-'${HOME}/R_LIBS/3_1'}
 R_LIBS_SITE=${R_LIBS_SITE-'/usr/lib/R/library'}
 
 
