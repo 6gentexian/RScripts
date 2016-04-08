@@ -15,5 +15,9 @@ tmp*
 
 # Ignore everything in subfolders, except project folders
 R_LIBS/*
+
+!R_LIBS/*.R
+!R_LIBS/*.r
+
 !R_LIBS/FRED/*.R
 !R_LIBS/ALFRED/*.R
