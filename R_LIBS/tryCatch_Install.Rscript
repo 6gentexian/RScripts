@@ -1,0 +1,57 @@
+#!/usr/bin/env Rscript
+# tryCatch_Install.Rscript -- experiments with tryCatch
+
+# Get any arguments
+#arguments <- commandArgs(trailingOnly=TRUE)
+#aaa <- arguments[1]
+aaa <- 'adabag'
+
+    packs <- installed.packages()
+    installedNames <- names(packs[,'Package'])
+
+    # get available package names
+    availNames <- names(available.packages()[,1])
+
+    # get names avail but not installed -- create loooong string
+    installNames <- availNames[!availNames %in% installedNames]
+
+    installNames=installNames[1:5]
+    installPacks <- available.packages()[which(names(available.packages()[,1]) %in% installNames),]
+
+    print(t(t(installPacks[, "Package"])))
+    cat('\n','\n')
+    
+
+
+
+        installPacks <- tryCatch({
+
+                    install.packages(aaa, lib=.libPaths()[1], quiet=TRUE)
+
+                    cat('\n', '\n', '\n', "It worked", '\n', '\n', '\n')
+                    installPacks=installPacks[-which(installPacks[, "Package"] == aaa),]
+
+                    return(installPacks)
+                    
+        }, error = function(err) {
+
+                    print(paste("MY_ERROR:  ",err))
+                    return(installPacks)
+
+        }, warning = function(war) {
+
+                   # warning handler picks up where error was generated
+                   print(paste("MY_WARNING:  ",war))
+                   
+                   installPacks=installPacks[-which(installPacks[, "Package"] == aaa),]                                       
+                   return(installPacks)
+             
+        }, finally = {
+                   cat('\n','\n')
+        })
+
+
+
+  print(t(t(installPacks[, "Package"])))
+  
+  
