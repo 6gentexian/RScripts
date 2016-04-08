@@ -1,0 +1,156 @@
+################################################################################
+################################################################################
+options(chmhelp=TRUE)
+options(stringsAsFactors=FALSE)
+options(prompt="<R> ")
+options(width=120)
+options(max.print=999)
+options(java.parameters="-Xmx2g")
+options(digits.secs = 4)
+#options(defaultPackages = c(getOption("defaultPackages"), "tikzDevice"))
+################################################################################
+################################################################################
+
+WINDOWS <- tolower(.Platform$OS.type) == "windows"
+
+################################################################################
+##	set library path so that we don't have to change things when R gets upgraded
+################################################################################
+if (!WINDOWS)
+{
+    fileSep <- '/'
+
+    Sys.setenv(R_LIBS="/usr/lib/R/library")
+
+} else {
+
+    fileSep <- '\\'
+
+}
+################################################################################
+###            set a CRAN mirror; hard code the US repo for CRAN             ###
+###            NB: CRAN can sometimes have another set of files in a         ###
+###            'Recommended' Folder for any given R version                  ###
+###  https://cran.r-project.org/src/contrib/verMajor.verMinor/Recommended/   ###
+###  https://cran.r-project.org/src/contrib/                                 ###
+################################################################################
+local({ r <- getOption("repos")
+
+    r["CRAN"]         <- "https://cran.us.r-project.org"
+    r["WASHU"]        <- "https://cran.wustl.edu/"
+
+    ## R-Forge has a few good one off things that aren't currently on CRAN
+    r["RForge"]       <- "http://R-Forge.R-project.org"
+
+    options(repos = r)
+    rm(r)
+})
+################################################################################
+if(WINDOWS)
+{
+  options(IDE = 'C:/Tinn-R/bin/Tinn-R.exe')
+  options(use.DDE = T)
+  ##############################################################################
+  # THIS MAY CHANGE WITH EACH VERSION OF WINDOWS e.g. VISTA vs WINDOWS 7 etc
+  .trPaths <- paste(paste(Sys.getenv('APPDATA'), '\\Tinn-R\\tmp\\', sep=''),
+              c('', 'search.txt', 'objects.txt', 'file.r', 'selection.r'
+              , 'block.r', 'lines.r'), sep='')
+  ##############################################################################
+  cls <- function(os = .Platform$OS.type)
+  {
+    if (os != "windows")
+    {
+      err = "'clearRcon' needs Windows OS to use Windows Scripting"
+      cat(err, "\n")
+      return(invisible(err))
+    }
+
+    tdir <- tempdir()
+    fname <- paste(tdir, "\\clearRcon.vbs", sep = "")
+    cat("Dim pShell\n", file = fname)
+    cat("Set pShell = CreateObject(\"WScript.Shell\")\n", file = fname, append = TRUE)
+    cat("pShell.AppActivate \"R Console\"\n", file = fname, append = TRUE)
+    cat("pShell.SendKeys \"^L\"\n", file = fname, append = TRUE)
+    cat("Set pShell = Nothing\n", file = fname, append = TRUE)
+    system(paste("cscript //NoLogo", fname), minimized = TRUE)
+
+    invisible(fname)
+  }
+}
+################################################################################
+################################################################################
+.First <- function()
+{
+  if(WINDOWS)
+  {
+    ##	HAD TO INSTALL ACTIVESTATE TCL 8.5 AND INCLUDE THE FOLOOWING
+    ##    SYS.SETENV STATEMENT TO GET 'trDDEInstall()'
+    ##    TO RUN WITHOUT ERROR.
+    ##  http://www.activestate.com/activetcl
+    Sys.setenv(MY_TCLTK="C:/Tcl/bin")
+    require(TinnRcom);
+  }
+}
+################################################################################
+################################################################################
+.Last <- function()
+{
+  if(WINDOWS)
+  {
+    UPDATE()
+  }
+}
+################################################################################
+################################################################################
+
+
+################################################################################
+load.packages <- function(package, repos=getOption("repos"), dependencies="Depends",...)
+{
+  if (!require(package, quietly=TRUE, character.only = TRUE))
+  {
+    install.packages(package, repos=repos, dependencies=dependencies, Ncpus=2,...)
+
+    if(!require(package, quietly=TRUE, character.only = TRUE))
+    {
+      stop("package: ", sQuote(package), ' is needed.  Stopping')
+    }
+  }
+}
+################################################################################
+
+################################################################################
+ht <- function(DATA,...)
+{
+  INT <- list(...)
+
+  if(length(INT)==1)
+  {
+    for (int in INT)
+    {
+      print(head(DATA, int))
+            print(tail(DATA, int))
+    }
+  }
+
+  if(length(INT)==0)
+  {
+    print(head(DATA))
+    print(tail(DATA))
+  }
+}
+################################################################################
+
+################################################################################
+su  <- base::summary;
+len <- base::length
+################################################################################
+
+
+################################################################################
+####  TO UPDATE THE PACKAGES WITH ROOT PERMISSIONS:
+####  If the system library is: 'usr/lib64/R/library'
+####  Then change ownership of "" to root:wheel -R and add 'user' to 'wheel'
+####  $ sudo chown -R root:wheel $R_HOME"/library"
+####  $ sudo chmod -R 775 $R_HOME"/library"
+################################################################################
